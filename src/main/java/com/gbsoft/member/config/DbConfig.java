@@ -1,12 +1,7 @@
 package com.gbsoft.member.config;
 
-import jakarta.servlet.GenericServlet;
-import jakarta.servlet.ServletConfig;
-import jakarta.servlet.ServletContext;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.util.Enumeration;
 
 public class DbConfig {
 
@@ -22,13 +17,10 @@ public class DbConfig {
         return instance;
     }
 
-    private Connection conn = null;
-    private String url = "jdbc:mariadb://localhost:3306/test_db?user=root&password=root"; // TODO user, pw 수정
+    private String url = "jdbc:mariadb://localhost:3306/test_db?user=root&password=root";
 
     public Connection sqlLogin() {
-
-
-
+        Connection conn = null;
         try {
             Class.forName("org.mariadb.jdbc.Driver");
             conn = DriverManager.getConnection(url);

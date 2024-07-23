@@ -29,7 +29,27 @@ public class MemberServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        List<Member> memberList = MemberDao.getInstance().getMemberList();
+        int pageSize = Integer.parseInt(request.getParameter("pageSize"));
+        int pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
+        int offset = (pageNumber - 1) * pageSize;
+
+        int colNum = Integer.parseInt(request.getParameter("col"));
+        String sorting = request.getParameter("sorting");
+        String col = null;
+        switch (colNum) {
+            case 1:
+                col = "name";
+                break;
+            case 2:
+                col = "birth";
+                break;
+        }
+
+        String name = request.getParameter("name");
+        String gender = request.getParameter("gender");
+        String id = request.getParameter("id");
+
+        List<Member> memberList = MemberDao.getInstance().getMemberList(pageSize, offset, col, sorting, name, gender, id);
         objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
 
         response.setContentType("application/json");
