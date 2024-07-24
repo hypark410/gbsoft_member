@@ -2,7 +2,7 @@ package com.gbsoft.member.dto;
 
 import java.sql.Timestamp;
 
-public class MemberAdditionalInformation {
+public class MemberAdditionalInformationDto {
     private Long id;
     private Long memberId;
     private String contact;
@@ -12,10 +12,10 @@ public class MemberAdditionalInformation {
     private Timestamp modifiedAt;
     private String modifiedBy;
 
-    public MemberAdditionalInformation() {
+    public MemberAdditionalInformationDto() {
     }
 
-    public MemberAdditionalInformation(Long id, Long memberId, String contact, String address, Timestamp createdAt, String createdBy, Timestamp modifiedAt, String modifiedBy) {
+    public MemberAdditionalInformationDto(Long id, Long memberId, String contact, String address, Timestamp createdAt, String createdBy, Timestamp modifiedAt, String modifiedBy) {
         this.id = id;
         this.memberId = memberId;
         this.contact = contact;

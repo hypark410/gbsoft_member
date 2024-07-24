@@ -3,7 +3,7 @@ package com.gbsoft.member.dto;
 import java.sql.Date;
 import java.sql.Timestamp;
 
-public class Member {
+public class MemberDto {
     private Long id;
     private String name;
     private Date birth;
@@ -14,10 +14,10 @@ public class Member {
     private String modifiedBy;
     private Integer isDeleted;
 
-    public Member() {
+    public MemberDto() {
     }
 
-    public Member(Long id, String name, Date birth, String gender, Timestamp createdAt, String createdBy, Timestamp modifiedAt, String modifiedBy, Integer isDeleted) {
+    public MemberDto(Long id, String name, Date birth, String gender, Timestamp createdAt, String createdBy, Timestamp modifiedAt, String modifiedBy, Integer isDeleted) {
         this.id = id;
         this.name = name;
         this.birth = birth;

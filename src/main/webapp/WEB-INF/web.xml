@@ -4,13 +4,54 @@
          xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
          version="6.0">
 
+    <filter>
+        <filter-name>tokenFilter</filter-name>
+        <filter-class>com.gbsoft.member.filter.TokenFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>auditFilter</filter-name>
+        <filter-class>com.gbsoft.member.filter.AuditFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>tokenFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>auditFilter</filter-name>
+        <url-pattern>/updateMember</url-pattern>
+    </filter-mapping>
+
+    <servlet>
+        <servlet-name>memberListServlet</servlet-name>
+        <servlet-class>com.gbsoft.member.servlet.MemberListServlet</servlet-class>
+    </servlet>
     <servlet>
         <servlet-name>memberServlet</servlet-name>
         <servlet-class>com.gbsoft.member.servlet.MemberServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>updateMemberServlet</servlet-name>
+        <servlet-class>com.gbsoft.member.servlet.UpdateMemberServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>softDeleteMemberServlet</servlet-name>
+        <servlet-class>com.gbsoft.member.servlet.SoftDeleteMemberServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>memberListServlet</servlet-name>
+        <url-pattern>/memberList</url-pattern>
+    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>memberServlet</servlet-name>
         <url-pattern>/member</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>updateMemberServlet</servlet-name>
+        <url-pattern>/updateMember</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>softDeleteMemberServlet</servlet-name>
+        <url-pattern>/deleteMember</url-pattern>
     </servlet-mapping>
 
 </web-app>
