@@ -28,4 +28,13 @@ public enum GenderEnum {
         }
         return null;
     }
+
+    public static String getCodeByDescription(String description) {
+        for (GenderEnum genderEnum : GenderEnum.values()) {
+            if (genderEnum.getDescription().equals(description)) {
+                return genderEnum.getCode();
+            }
+        }
+        return null;
+    }
 }

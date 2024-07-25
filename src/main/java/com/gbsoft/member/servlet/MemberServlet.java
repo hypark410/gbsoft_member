@@ -43,6 +43,10 @@ public class MemberServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+//        HttpSession session = request.getSession();
+//        String userId = (String) session.getAttribute("userId");
+        String userId = "hypark";
+
         ServletInputStream inputStream = request.getInputStream();
         String str = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         MemberInputDto inputDto = objectMapper.readValue(str, MemberInputDto.class);
@@ -50,22 +54,25 @@ public class MemberServlet extends HttpServlet {
         String result = validation(inputDto);
         if (result.equals("ok")) {
             Date date = Date.valueOf(inputDto.getBirth());
-            String createdBy = inputDto.getCreatedBy();
-            String modifiedBy = inputDto.getModifiedBy();
-            MemberDto member = new MemberDto(null, inputDto.getName(), date, inputDto.getGender(), null, createdBy, null, modifiedBy, 0);
-            MemberAdditionalInformationDto memberInfo = new MemberAdditionalInformationDto(null, null, inputDto.getContact(), inputDto.getAddress(), null, createdBy, null, modifiedBy);
 
-            MemberDao.getInstance().createMember(member, memberInfo);
+            MemberDto member = new MemberDto(null, inputDto.getName(), date, inputDto.getGender(), null, null, null, null, 0);
+            MemberAdditionalInformationDto memberInfo = new MemberAdditionalInformationDto(null, null, inputDto.getContact(), inputDto.getAddress(), null, null, null, null);
+
+            MemberDao.getInstance().createMember(member, memberInfo, userId);
         }
         response.getWriter().write(result);
     }
 
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String result = "ok";
-        int delResult = MemberDao.getInstance().HardDeleteMember(Long.parseLong(request.getParameter("id")));
+//        HttpSession session = request.getSession();
+//        String userId = (String) session.getAttribute("userId");
+        String userId = "hypark";
 
-        if(delResult == 0) {
+        String result = "ok";
+        int delResult = MemberDao.getInstance().HardDeleteMember(Long.parseLong(request.getParameter("id")), userId);
+
+        if (delResult == 0) {
             result = "삭제를 실패하였습니다.";
         }
 
@@ -80,8 +87,6 @@ public class MemberServlet extends HttpServlet {
         String gender = inputDto.getGender();
         String contact = inputDto.getContact();
         String contactRegex = "\\d{2,3}-\\d{3,4}-\\d{4}";
-        String createdBy = inputDto.getCreatedBy();
-        String modifiedBy = inputDto.getModifiedBy();
 
         if (name == null || name.isEmpty()) {
             result = "이름을 입력하세요.";
@@ -97,10 +102,6 @@ public class MemberServlet extends HttpServlet {
             if (!contact.matches(contactRegex)) {
                 result = "전화번호는 000-0000-0000 형태로 입력하세요.";
             }
-        } else if (createdBy == null || createdBy.isEmpty()) {
-            result = "createdBy를 입력하세요.";
-        } else if (modifiedBy == null || modifiedBy.isEmpty()) {
-            result = "modifiedBy을 입력하세요.";
         }
 
         return result;

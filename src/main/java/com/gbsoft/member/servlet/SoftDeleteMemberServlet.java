@@ -21,7 +21,9 @@ public class SoftDeleteMemberServlet extends HttpServlet {
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String result = "ok";
-        int delResult = MemberDao.getInstance().SoftDeleteMember(Long.parseLong(request.getParameter("id")));
+
+        String ids = request.getParameter("ids");
+        int delResult = MemberDao.getInstance().SoftDeleteMember(ids);
 
         if(delResult == 0) {
             result = "삭제를 실패하였습니다.";

@@ -94,7 +94,7 @@ public class MemberDao {
         return member;
     }
 
-    public void createMember(MemberDto member, MemberAdditionalInformationDto memberInfo) {
+    public void createMember(MemberDto member, MemberAdditionalInformationDto memberInfo, String userId) {
         try (Connection conn = DbConfig.getInstance().sqlLogin()) {
             conn.setAutoCommit(false);
 
@@ -103,8 +103,8 @@ public class MemberDao {
                 psMember.setString(1, member.getName());
                 psMember.setDate(2, member.getBirth());
                 psMember.setString(3, member.getGender());
-                psMember.setString(4, member.getCreatedBy());
-                psMember.setString(5, member.getModifiedBy());
+                psMember.setString(4, userId);
+                psMember.setString(5, userId);
                 psMember.executeUpdate();
                 conn.commit();
                 try (ResultSet rs = psMember.getGeneratedKeys()) {
@@ -114,7 +114,7 @@ public class MemberDao {
 
                         MemberDto insertMember = getTimestamp(memberId);
                         if (insertMember == null) {
-                            HardDeleteMember(memberId);
+                            HardDeleteMember(memberId, null);
                             return;
                         }
 
@@ -125,9 +125,9 @@ public class MemberDao {
                             psMemberInfo.setString(2, memberInfo.getContact());
                             psMemberInfo.setString(3, memberInfo.getAddress());
                             psMemberInfo.setTimestamp(4, createdAt);
-                            psMemberInfo.setString(5, memberInfo.getCreatedBy());
+                            psMemberInfo.setString(5, userId);
                             psMemberInfo.setTimestamp(6, createdAt);
-                            psMemberInfo.setString(7, memberInfo.getModifiedBy());
+                            psMemberInfo.setString(7, userId);
                             psMemberInfo.executeUpdate();
                         }
                         conn.commit();
@@ -235,34 +235,55 @@ public class MemberDao {
         }
     }
 
-    public int HardDeleteMember(Long id) {
+    public int HardDeleteMember(Long id, String userId) {
         int result = 0;
         try (Connection conn = DbConfig.getInstance().sqlLogin()) {
             conn.setAutoCommit(false);
 
-            String sql = "delete from member where id = ?";
-            try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setLong(1, id);
-                result = ps.executeUpdate();
+            if(userId != null) {
+                MemberInputDto member = getMember(id);
+                String insertSql = "insert into delete_member_log values(?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?)";
+                try (PreparedStatement insertPs = conn.prepareStatement(insertSql)) {
+                    insertPs.setLong(1, id);
+                    insertPs.setString(2, member.getName());
+                    insertPs.setString(3, member.getBirth());
+                    insertPs.setString(4, GenderEnum.getCodeByDescription(member.getGender()));
+                    insertPs.setString(5, member.getContact());
+                    insertPs.setString(6, member.getAddress());
+                    insertPs.setTimestamp(7, member.getCreatedAt());
+                    insertPs.setString(8, member.getCreatedBy());
+                    insertPs.setString(9, userId);
+                    insertPs.executeUpdate();
+                }catch (SQLException e) {
+                    conn.rollback();
+                    e.printStackTrace();
+                }
+            }
+
+            String deleteSql = "delete from member where id = ?";
+            try (PreparedStatement deletePs = conn.prepareStatement(deleteSql)) {
+                deletePs.setLong(1, id);
+                result = deletePs.executeUpdate();
                 conn.commit();
             } catch (SQLException e) {
                 conn.rollback();
                 e.printStackTrace();
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return result;
     }
 
-    public int SoftDeleteMember(Long id) {
+    public int SoftDeleteMember(String ids) {
         int result = 0;
         try (Connection conn = DbConfig.getInstance().sqlLogin()) {
             conn.setAutoCommit(false);
 
-            String sql = "";
+            String sql = String.format("update member set is_deleted = 1 where id in (%s)", ids);
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setLong(1, id);
+                ps.setString(1, ids);
                 result = ps.executeUpdate();
                 conn.commit();
             } catch (SQLException e) {

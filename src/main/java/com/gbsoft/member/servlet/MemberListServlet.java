@@ -13,7 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 /*
- * Member 전체 조회 (페이징, 이름/생일순 정렬, 이름/성별 검색)
+ * Member 전체 조회 (페이징, 이름/나이순 정렬, 이름/성별 검색)
  * */
 public class MemberListServlet extends HttpServlet {
 
@@ -31,7 +31,7 @@ public class MemberListServlet extends HttpServlet {
 
         // 정렬
         int colNum = Integer.parseInt(request.getParameter("col"));
-        String sorting = request.getParameter("sorting");
+        int sortingNum = Integer.parseInt(request.getParameter("sorting"));
         String col = null;
         switch (colNum) {
             case 1:
@@ -39,6 +39,15 @@ public class MemberListServlet extends HttpServlet {
                 break;
             case 2:
                 col = "birth";
+                break;
+        }
+        String sorting = null;
+        switch (sortingNum) {
+            case 1:
+                sorting = "asc";
+                break;
+            case 2:
+                sorting = "desc";
                 break;
         }
 
