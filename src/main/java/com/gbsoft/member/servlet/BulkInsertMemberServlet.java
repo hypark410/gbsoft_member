@@ -1,6 +1,5 @@
 package com.gbsoft.member.servlet;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gbsoft.member.dao.MemberDao;
 import com.gbsoft.member.dto.GenderEnum;
 import com.gbsoft.member.dto.MemberAdditionalInformationDto;
@@ -22,8 +21,6 @@ import java.text.SimpleDateFormat;
  * 엑셀 파일을 이용한 Member 생성
  * */
 public class BulkInsertMemberServlet extends HttpServlet {
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public void init() throws ServletException {
