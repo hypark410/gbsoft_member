@@ -34,6 +34,16 @@
         <servlet-class>com.gbsoft.member.servlet.UpdateMemberServlet</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>bulkInsertMemberServlet</servlet-name>
+        <servlet-class>com.gbsoft.member.servlet.BulkInsertMemberServlet</servlet-class>
+        <multipart-config>
+            <location>C:\\test</location>
+            <max-file-size>20971520</max-file-size> <!-- 1MB * 20 -->
+            <max-request-size>41943040</max-request-size> <!-- 40MB -->
+            <file-size-threshold>20971520</file-size-threshold> <!-- 20MB -->
+        </multipart-config>
+    </servlet>
+    <servlet>
         <servlet-name>softDeleteMemberServlet</servlet-name>
         <servlet-class>com.gbsoft.member.servlet.SoftDeleteMemberServlet</servlet-class>
     </servlet>
@@ -52,6 +62,10 @@
     <servlet-mapping>
         <servlet-name>softDeleteMemberServlet</servlet-name>
         <url-pattern>/deleteMember</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>bulkInsertMemberServlet</servlet-name>
+        <url-pattern>/bulkInsertMember</url-pattern>
     </servlet-mapping>
 
 </web-app>
