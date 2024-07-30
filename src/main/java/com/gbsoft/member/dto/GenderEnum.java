@@ -1,5 +1,7 @@
 package com.gbsoft.member.dto;
 
+import java.util.Arrays;
+
 public enum GenderEnum {
     FEMALE("F", "여자"),
     MALE("M", "남자");
@@ -21,20 +23,18 @@ public enum GenderEnum {
     }
 
     public static String getDescriptionByCode(String code) {
-        for (GenderEnum genderEnum : GenderEnum.values()) {
-            if (genderEnum.getCode().equals(code)) {
-                return genderEnum.getDescription();
-            }
-        }
-        return null;
+        return Arrays.stream(values())
+                .filter(genderEnum -> genderEnum.getCode().equals(code))
+                .findFirst()
+                .map(GenderEnum::getDescription)
+                .orElse(null);
     }
 
     public static String getCodeByDescription(String description) {
-        for (GenderEnum genderEnum : GenderEnum.values()) {
-            if (genderEnum.getDescription().equals(description)) {
-                return genderEnum.getCode();
-            }
-        }
-        return null;
+        return Arrays.stream(values())
+                .filter(genderEnum -> genderEnum.getDescription().equals(description))
+                .findFirst()
+                .map(GenderEnum::getCode)
+                .orElse(null);
     }
 }

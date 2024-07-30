@@ -1,6 +1,7 @@
 package com.gbsoft.member.servlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gbsoft.member.config.UtilClass;
 import com.gbsoft.member.dao.MemberDao;
 import com.gbsoft.member.dto.MemberInputDto;
 import jakarta.servlet.ServletException;
@@ -19,7 +20,8 @@ public class MemberListServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        super.init();
+        UtilClass util = new UtilClass();
+        util.setDbConfig(getServletContext());
     }
 
     @Override

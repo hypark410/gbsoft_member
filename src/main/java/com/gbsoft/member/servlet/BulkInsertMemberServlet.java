@@ -1,9 +1,11 @@
 package com.gbsoft.member.servlet;
 
+import com.gbsoft.member.config.UtilClass;
 import com.gbsoft.member.dao.MemberDao;
 import com.gbsoft.member.dto.GenderEnum;
 import com.gbsoft.member.dto.MemberAdditionalInformationDto;
 import com.gbsoft.member.dto.MemberDto;
+import com.gbsoft.member.dto.MemberInputDto;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,7 +17,10 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Date;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /*
  * 엑셀 파일을 이용한 Member 생성
@@ -24,7 +29,8 @@ public class BulkInsertMemberServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        super.init();
+        UtilClass util = new UtilClass();
+        util.setDbConfig(getServletContext());
     }
 
     @Override
@@ -34,33 +40,61 @@ public class BulkInsertMemberServlet extends HttpServlet {
         String userId = "hypark";
         String result = "ok";
 
+        List<MemberDto> memberList = new ArrayList<>();
+        List<MemberAdditionalInformationDto> memberInfoList = new ArrayList<>();
         MemberDto member = null;
         MemberAdditionalInformationDto memberInfo = null;
 
-//        String filePath = "C:\\test\\bulk_insert.xlsx";
-//        FileInputStream is = new FileInputStream(filePath);
         InputStream is = request.getPart("bulk_insert.xlsx").getInputStream();
+//        InputStream is = request.getPart("bulk_insert_fail.xlsx").getInputStream();
         XSSFWorkbook workbook = new XSSFWorkbook(is);
         XSSFSheet sheet = workbook.getSheetAt(0);
         for (Row row : sheet) {
-            if (row.getRowNum() == 0 || row.getRowNum() == 1) continue;
-            String nameValue = row.getCell(0).getStringCellValue();
-            if (row != null && !nameValue.equals("")) {
-                // TODO validation 추가
-                member = new MemberDto();
-                member.setName(nameValue);
+            int rowNum = row.getRowNum();
+            if (rowNum == 0 || rowNum == 1) continue;
+            String nameStr = row.getCell(0).getStringCellValue();
+            if (row != null && !nameStr.equals("")) {
                 java.util.Date dateCellValue = row.getCell(1).getDateCellValue();
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                String str = sdf.format(dateCellValue);
-                member.setBirth(Date.valueOf(str));
+                String birthStr = sdf.format(dateCellValue);
                 String genderStr = row.getCell(2).getStringCellValue();
-                member.setGender(GenderEnum.getCodeByDescription(genderStr));
-                member.setIsDeleted(0);
-                memberInfo = new MemberAdditionalInformationDto();
-                memberInfo.setContact(row.getCell(3).getStringCellValue());
-                memberInfo.setAddress(row.getCell(4).getStringCellValue());
+                String contactStr = row.getCell(3).getStringCellValue();
+                String addressStr = row.getCell(4).getStringCellValue();
 
-                MemberDao.getInstance().createMember(member, memberInfo, userId); // TODO 수정
+                MemberInputDto inputDto = new MemberInputDto();
+                inputDto.setName(nameStr);
+                inputDto.setBirth(birthStr);
+                inputDto.setGender(genderStr);
+                inputDto.setContact(contactStr);
+                inputDto.setAddress(addressStr);
+
+                result = new MemberServlet().validation(inputDto);
+                if (result.equals("ok")) {
+                    member = new MemberDto();
+                    member.setName(nameStr);
+                    member.setBirth(Date.valueOf(birthStr));
+                    member.setGender(GenderEnum.getCodeByDescription(genderStr));
+                    member.setIsDeleted(0);
+                    memberInfo = new MemberAdditionalInformationDto();
+                    memberInfo.setContact(contactStr);
+                    memberInfo.setAddress(addressStr);
+
+                    memberList.add(member);
+                    memberInfoList.add(memberInfo);
+                } else {
+                    result = rowNum + 1 + "행의 " + result;
+                    break;
+                }
+            }
+        }
+
+        if (result.equals("ok")) {
+            for (int i = 0; i < memberList.size(); i++) {
+                try {
+                    MemberDao.getInstance().createMember(memberList.get(i), memberInfoList.get(i), userId);
+                } catch (SQLException e) {
+                    result = e.getMessage();
+                }
             }
         }
 

@@ -1,7 +1,9 @@
 package com.gbsoft.member.servlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gbsoft.member.config.UtilClass;
 import com.gbsoft.member.dao.MemberDao;
+import com.gbsoft.member.dto.GenderEnum;
 import com.gbsoft.member.dto.MemberAdditionalInformationDto;
 import com.gbsoft.member.dto.MemberDto;
 import com.gbsoft.member.dto.MemberInputDto;
@@ -14,6 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 
 /*
@@ -28,7 +31,8 @@ public class MemberServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        super.init();
+        UtilClass util = new UtilClass();
+        util.setDbConfig(getServletContext());
     }
 
     @Override
@@ -55,10 +59,15 @@ public class MemberServlet extends HttpServlet {
         if (result.equals("ok")) {
             Date date = Date.valueOf(inputDto.getBirth());
 
-            MemberDto member = new MemberDto(null, inputDto.getName(), date, inputDto.getGender(), null, null, null, null, 0);
+            MemberDto member = new MemberDto(null, inputDto.getName(), date, GenderEnum.getCodeByDescription(inputDto.getGender()), null, null, null, null, 0);
             MemberAdditionalInformationDto memberInfo = new MemberAdditionalInformationDto(null, null, inputDto.getContact(), inputDto.getAddress(), null, null, null, null);
 
-            MemberDao.getInstance().createMember(member, memberInfo, userId);
+            try{
+                MemberDao.getInstance().createMember(member, memberInfo, userId);
+            }catch (SQLException e) {
+                result = e.getMessage();
+            }
+
         }
         response.getWriter().write(result);
     }
@@ -79,7 +88,7 @@ public class MemberServlet extends HttpServlet {
         response.getWriter().write(result);
     }
 
-    private String validation(MemberInputDto inputDto) {
+    public String validation(MemberInputDto inputDto) {
         String result = "ok";
         String name = inputDto.getName();
         String birth = inputDto.getBirth();
@@ -96,8 +105,8 @@ public class MemberServlet extends HttpServlet {
             result = "생일은 1900-01-01 형태로 입력하세요.";
         } else if (gender == null || gender.isEmpty()) {
             result = "성별을 입력하세요.";
-        } else if (!gender.equals("F") && !gender.equals("M")) {
-            result = "성별은 F 혹은 M으로 입력하세요.";
+        } else if (!gender.equals("남자") && !gender.equals("여자")) {
+            result = "성별은 남자 혹은 여자로 입력하세요.";
         } else if (contact != null || !contact.isEmpty()) {
             if (!contact.matches(contactRegex)) {
                 result = "전화번호는 000-0000-0000 형태로 입력하세요.";

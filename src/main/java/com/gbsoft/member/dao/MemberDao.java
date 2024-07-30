@@ -94,7 +94,8 @@ public class MemberDao {
         return member;
     }
 
-    public void createMember(MemberDto member, MemberAdditionalInformationDto memberInfo, String userId) {
+    public void createMember(MemberDto member, MemberAdditionalInformationDto memberInfo, String userId) throws SQLException {
+        String errorMsg = null;
         try (Connection conn = DbConfig.getInstance().sqlLogin()) {
             conn.setAutoCommit(false);
 
@@ -133,15 +134,18 @@ public class MemberDao {
                         conn.commit();
                     } else {
                         conn.rollback();
-                        throw new SQLException("member 테이블 ID 생성 실패");
+                        errorMsg = "member 테이블 ID 생성 실패";
+                        throw new SQLException(errorMsg);
                     }
                 }
             } catch (SQLException e) {
                 conn.rollback();
                 e.printStackTrace();
+                throw new SQLException(errorMsg);
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new SQLException(errorMsg);
         }
     }
 
